@@ -1,0 +1,68 @@
+File Structure Overhaul & Major Updates
+
+**File Structure Changes**
+- Added `Data/` and `Migrations/` directories.
+- Organized `Models/` into:
+  - `ClassModels/` (for data classes).
+  - `ViewModels/` (for page-specific models).
+- Structured `Views/` with:
+  - `Dashboard/`
+  - `Home/`
+  - `User/`
+- `wwwroot/` now includes:
+  - `images/` with `profile_images/` & `site_images/`
+  - Added favicon for browser tab icon.
+
+**Controller Updates**
+- Added `DashboardController` for dashboard-specific actions.
+- Added `UserController` for user-related actions.
+- `HomeController` remains mostly unchanged.
+
+**Database & Migrations**
+- Built the database with a `User` table:
+  - Fields: `FirstName`, `LastName`, `Email`, `Password`, `ProfilePicture` (optional).
+- Applied migrations:
+  - Added constraints later (`Migrations` folder contains relevant changes).
+
+**Views & UI**
+- Added `cshtml` pages for:
+  - `Login`, `Register`, `Dashboard`
+  - Modified `Index.cshtml`
+- `Shared/_Layout.cshtml`:
+  - Navbar now has a `Login` button that dynamically turns into `Logout` when authenticated.
+  - Dashboard button only appears when logged in.
+- Styling remains mostly unchanged.
+
+**Program.cs & Config Updates**
+- Significant changes to `Program.cs` for:
+  - **Session handling**
+  - **Authorization setup** (team should review for clarity).
+- Minor updates to `appsettings.json` for database connectivity.
+
+**Git Merge Summary**
+- **Fast-forward merge from `Rinzler86` to `development`.**
+- **865 insertions, 9 deletions, and multiple new files added:**
+  - `Controllers/DashboardController.cs`
+  - `Controllers/UserController.cs`
+  - `Data/ApplicationDbContext.cs`
+  - `Migrations` folder now contains:
+    - `InitialCreate`
+    - `AddUniqueConstraintToEmail`
+  - `Models/ClassModels/User.cs`
+  - `Models/ViewModels/LoginViewModel.cs`
+  - `Models/ViewModels/RegisterViewModel.cs`
+  - `Views/Dashboard/Dashboard.cshtml`
+  - `Views/User/Login.cshtml`
+  - `Views/User/Register.cshtml`
+  - `wwwroot/images/` with multiple new assets
+- **Binary files added:**
+  - `wwwroot/images/profile_images/`
+  - `wwwroot/images/site_images/`
+  - Favicon for browser tab icon.
+
+**Impact & Next Steps**
+- **Saves 2-3 weeks of development time!** 🚀
+- **~12-15 new files, hundreds of lines of code.**
+- Team should **review all files** for clarity on project scope.
+
+(Other minor changes not mentioned)
