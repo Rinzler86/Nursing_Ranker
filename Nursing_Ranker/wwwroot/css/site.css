@@ -45,3 +45,7 @@ body {
     .btn-primary:hover {
         background: linear-gradient(45deg, #f06595, #ff6b6b);
     }
+
+.footer {
+    text-align: center;
+}

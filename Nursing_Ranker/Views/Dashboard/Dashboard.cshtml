@@ -1,0 +1,10 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2>Welcome to your Dashboard</h2>
+<p>This page is only accessible to logged-in users.</p>
+@if (ViewBag.User != null)
+{
+    <p>Hello, @ViewBag.User.FirstName @ViewBag.User.LastName!</p>
+}
