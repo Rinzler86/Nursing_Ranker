@@ -3,6 +3,28 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">Nursing Ranker</h1>
+    <p class="lead">Welcome to Nursing Ranker, your go-to source for ranking nursing programs.</p>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <button class="btn btn-primary mt-3" id="animatedButton">Get Started</button>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const button = document.getElementById('animatedButton');
+            let gradientPosition = 0;
+
+            function animateGradient() {
+                gradientPosition += 1;
+                button.style.background = `linear-gradient(${gradientPosition}deg, #258cfb, #f06595)`;
+                requestAnimationFrame(animateGradient);
+            }
+
+            animateGradient();
+        });
+    </script>
+}
+
+
+
