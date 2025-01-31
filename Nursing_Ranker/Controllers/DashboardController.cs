@@ -67,6 +67,11 @@ public class DashboardController : Controller
         }
         return View();
     }
+    public IActionResult ModalAndTabReference()
+    {
+        _logger.LogInformation("ModalAndTabReference action called.");
+        return View();
+    }
 }
 
 
