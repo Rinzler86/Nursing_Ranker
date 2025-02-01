@@ -43,6 +43,17 @@
                                     <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
                                 </form>
                             </li>
+                            @* Display profile picture if available *@
+                            var userId = Context.Session.GetInt32("UserId");
+                            var user = userId.HasValue ? ViewBag.User as Nursing_Ranker.Models.ClassModels.User : null;
+                            var profilePicturePath = user?.ProfilePicturePath;
+                            if (!string.IsNullOrEmpty(profilePicturePath))
+                            {
+                                var fullProfilePicturePath = "~/images/profile_images/" + profilePicturePath;
+                                <li class="nav-item">
+                                    <img src="@Url.Content(fullProfilePicturePath)" alt="Profile Picture" class="profile-picture" />
+                                </li>
+                            }
                         }
                         else
                         {
@@ -72,6 +83,7 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
 
 
 
