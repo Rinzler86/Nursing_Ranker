@@ -67,6 +67,7 @@ public class DashboardController : Controller
         }
         return View();
     }
+    [AllowAnonymous]
     public IActionResult ModalAndTabReference()
     {
         _logger.LogInformation("ModalAndTabReference action called.");
