@@ -1,0 +1,61 @@
+﻿@{
+    var placeholderStats = new List<dynamic>
+    {
+        new { Metric = "Total Applicants", Value = 150 },
+        new { Metric = "Accepted Applicants", Value = 75 },
+        new { Metric = "Rejected Applicants", Value = 50 },
+        new { Metric = "Pending Applicants", Value = 25 }
+    };
+}
+
+<div>
+    <h3>Stats</h3>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addStatModal">Add Stat</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var stat in placeholderStats)
+            {
+                <tr>
+                    <td>@stat.Metric</td>
+                    <td>@stat.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Stat Modal -->
+<div class="modal fade" id="addStatModal" tabindex="-1" aria-labelledby="addStatModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addStatModalLabel">Add Stat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add Stat Form -->
+                <form>
+                    <div class="mb-3">
+                        <label for="statMetric" class="form-label">Metric</label>
+                        <input type="text" class="form-control" id="statMetric">
+                    </div>
+                    <div class="mb-3">
+                        <label for="statValue" class="form-label">Value</label>
+                        <input type="number" class="form-control" id="statValue">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+

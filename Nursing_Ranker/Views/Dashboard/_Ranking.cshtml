@@ -1,0 +1,60 @@
+﻿@{
+    var placeholderRanking = new List<dynamic>
+    {
+        new { Name = "John Doe", Rank = 1 },
+        new { Name = "Jane Smith", Rank = 2 },
+        new { Name = "Alice Johnson", Rank = 3 }
+    };
+}
+
+<div>
+    <h3>Ranking</h3>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addRankingModal">Add Ranking</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rank in placeholderRanking)
+            {
+                <tr>
+                    <td>@rank.Rank</td>
+                    <td>@rank.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Ranking Modal -->
+<div class="modal fade" id="addRankingModal" tabindex="-1" aria-labelledby="addRankingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addRankingModalLabel">Add Ranking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add Ranking Form -->
+                <form>
+                    <div class="mb-3">
+                        <label for="rankingName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="rankingName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rankingRank" class="form-label">Rank</label>
+                        <input type="number" class="form-control" id="rankingRank">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+

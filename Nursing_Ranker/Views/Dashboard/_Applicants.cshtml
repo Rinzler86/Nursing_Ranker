@@ -1,0 +1,106 @@
+﻿@{
+    var placeholderApplicants = new List<dynamic>
+    {
+        new { Name = "John Doe", Email = "john.doe@example.com", ApplicationDate = DateTime.Now },
+        new { Name = "Jane Smith", Email = "jane.smith@example.com", ApplicationDate = DateTime.Now.AddDays(-1) },
+        new { Name = "Alice Johnson", Email = "alice.johnson@example.com", ApplicationDate = DateTime.Now.AddDays(-2) }
+    };
+}
+
+<div>
+    <h3>Applicants</h3>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addApplicantModal">Add Applicant</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Application Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var applicant in placeholderApplicants)
+            {
+                <tr>
+                    <td>@applicant.Name</td>
+                    <td>@applicant.Email</td>
+                    <td>@applicant.ApplicationDate.ToString("MM/dd/yyyy")</td>
+                    <td>
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editApplicantModal">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Applicant Modal -->
+<div class="modal fade" id="addApplicantModal" tabindex="-1" aria-labelledby="addApplicantModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addApplicantModalLabel">Add Applicant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add Applicant Form -->
+                <form>
+                    <div class="mb-3">
+                        <label for="applicantName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="applicantName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="applicantEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="applicantEmail">
+                    </div>
+                    <div class="mb-3">
+                        <label for="applicationDate" class="form-label">Application Date</label>
+                        <input type="date" class="form-control" id="applicationDate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Applicant Modal -->
+<div class="modal fade" id="editApplicantModal" tabindex="-1" aria-labelledby="editApplicantModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editApplicantModalLabel">Edit Applicant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Edit Applicant Form -->
+                <form>
+                    <div class="mb-3">
+                        <label for="editApplicantName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="editApplicantName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editApplicantEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editApplicantEmail">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editApplicationDate" class="form-label">Application Date</label>
+                        <input type="date" class="form-control" id="editApplicationDate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

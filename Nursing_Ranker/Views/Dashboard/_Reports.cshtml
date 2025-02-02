@@ -1,0 +1,51 @@
+﻿@{
+    var placeholderReports = new List<dynamic>
+    {
+        new { Title = "Monthly Report", Date = DateTime.Now.AddMonths(-1) },
+        new { Title = "Quarterly Report", Date = DateTime.Now.AddMonths(-3) },
+        new { Title = "Annual Report", Date = DateTime.Now.AddYears(-1) }
+    };
+}
+
+<div>
+    <h3>Reports</h3>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addReportModal">Add Report</button>
+    <ul class="list-group">
+        @foreach (var report in placeholderReports)
+        {
+            <li class="list-group-item">
+                <strong>@report.Title</strong> - @report.Date.ToString("MM/dd/yyyy")
+            </li>
+        }
+    </ul>
+</div>
+
+<!-- Add Report Modal -->
+<div class="modal fade" id="addReportModal" tabindex="-1" aria-labelledby="addReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addReportModalLabel">Add Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add Report Form -->
+                <form>
+                    <div class="mb-3">
+                        <label for="reportTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="reportTitle">
+                    </div>
+                    <div class="mb-3">
+                        <label for="reportDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="reportDate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,52 @@
+﻿@{
+    var placeholderAlerts = new List<dynamic>
+    {
+        new { Message = "New applicant submitted.", Date = DateTime.Now },
+        new { Message = "System maintenance scheduled.", Date = DateTime.Now.AddDays(1) },
+        new { Message = "Profile update required.", Date = DateTime.Now.AddDays(-2) }
+    };
+}
+
+<div>
+    <h3>Alerts</h3>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addAlertModal">Add Alert</button>
+    <ul class="list-group">
+        @foreach (var alert in placeholderAlerts)
+        {
+            <li class="list-group-item">
+                <strong>@alert.Message</strong> - @alert.Date.ToString("MM/dd/yyyy")
+            </li>
+        }
+    </ul>
+</div>
+
+<!-- Add Alert Modal -->
+<div class="modal fade" id="addAlertModal" tabindex="-1" aria-labelledby="addAlertModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAlertModalLabel">Add Alert</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add Alert Form -->
+                <form>
+                    <div class="mb-3">
+                        <label for="alertMessage" class="form-label">Message</label>
+                        <input type="text" class="form-control" id="alertMessage">
+                    </div>
+                    <div class="mb-3">
+                        <label for="alertDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="alertDate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
