@@ -51,9 +51,20 @@
                             {
                                 var fullProfilePicturePath = "~/images/profile_images/" + profilePicturePath;
                                 <li class="nav-item">
-                                    <img src="@Url.Content(fullProfilePicturePath)" alt="Profile Picture" class="profile-picture" />
+                                    <button type="button" class="btn p-0 border-0 bg-transparent ms-2" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">
+                                        <img src="@Url.Content(fullProfilePicturePath)" alt="Profile Picture" style="width: 50px; height: 50px;" />
+                                    </button>
                                 </li>
                             }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <button type="button" class="btn p-0 border-0 bg-transparent ms-2" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">
+                                        <img src="~/images/profile_images/settingsCogIcon.png" alt="Profile Picture" style="width: 50px; height: 50px;" />
+                                    </button>
+                                </li>
+                            }
+                            @await Html.PartialAsync("_EditProfile")
                         }
 
                         else

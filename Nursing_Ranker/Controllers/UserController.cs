@@ -154,6 +154,96 @@ namespace Nursing_Ranker.Controllers
             return View(model);
         }
 
+        // Get the user's profile to edit
+        [HttpGet]
+        public IActionResult EditProfile()
+        {
+            _logger.LogInformation("EditProfile GET action called.");
+
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Pass user data to the view
+            var model = new EditProfileViewModel
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                ExistingProfilePicture = user.ProfilePicturePath
+            };
+
+            return PartialView("~/Views/Dashboard/_EditProfile.cshtml", model);
+        }
+
+        // Post the changes to the user's profile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(EditProfileViewModel model)
+        {
+            _logger.LogInformation("EditProfile POST action called.");
+
+            if (!ModelState.IsValid)
+            {
+                int? userId = HttpContext.Session.GetInt32("UserId");
+                if (userId == null)
+                {
+                    return RedirectToAction("Login", "User");
+                }
+
+                var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                // Update fields to the new inputs on the modal
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.Email = model.Email;
+
+                // Handle new profile picture upload if they did not have one
+                if (model.ProfilePicture != null)
+                {
+                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\profile_images");
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ProfilePicture.FileName;
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ProfilePicture.CopyToAsync(fileStream);
+                    }
+
+                    // Delete old profile picture if exists
+                    if (!string.IsNullOrEmpty(user.ProfilePicturePath))
+                    {
+                        var oldFilePath = Path.Combine(uploadsFolder, user.ProfilePicturePath);
+                        if (System.IO.File.Exists(oldFilePath))
+                        {
+                            System.IO.File.Delete(oldFilePath);
+                        }
+                    }
+
+                    user.ProfilePicturePath = uniqueFileName;
+                }
+
+                // Save changes
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Profile updated successfully!" });
+            }
+
+            return PartialView("~/Views/Dashboard/_EditProfile.cshtml", model); // Return validation errors
+        }
 
         [HttpPost]
         public async Task<IActionResult> Logout()
@@ -171,9 +261,3 @@ namespace Nursing_Ranker.Controllers
 
     }
 }
-
-
-
-
-
-
