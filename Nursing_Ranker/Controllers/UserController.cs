@@ -184,25 +184,24 @@ namespace Nursing_Ranker.Controllers
             return PartialView("~/Views/Dashboard/_EditProfile.cshtml", model);
         }
 
-        // Post the changes to the user's profile
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProfile(EditProfileViewModel model)
         {
             _logger.LogInformation("EditProfile POST action called.");
 
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 int? userId = HttpContext.Session.GetInt32("UserId");
                 if (userId == null)
                 {
-                    return RedirectToAction("Login", "User");
+                    return Json(new { success = false, message = "User not logged in." });
                 }
 
                 var user = _context.Users.FirstOrDefault(u => u.Id == userId);
                 if (user == null)
                 {
-                    return NotFound();
+                    return Json(new { success = false, message = "User not found." });
                 }
 
                 // Update fields to the new inputs on the modal
@@ -242,8 +241,9 @@ namespace Nursing_Ranker.Controllers
                 return Json(new { success = true, message = "Profile updated successfully!" });
             }
 
-            return PartialView("~/Views/Dashboard/_EditProfile.cshtml", model); // Return validation errors
+            return Json(new { success = false, message = "Validation failed." });
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Logout()

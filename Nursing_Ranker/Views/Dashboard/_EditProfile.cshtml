@@ -7,19 +7,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Notification Banner -->
+                <div id="notificationBanner" class="alert" role="alert" style="display: none;"></div>
+
                 <!-- Edit Profile Form -->
                 <form id="editProfileForm" method="post" enctype="multipart/form-data" asp-controller="User" asp-action="EditProfile">
                     <div class="mb-3">
                         <label for="FirstName" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="FirstName" name="FirstName" value="@ViewBag.User.FirstName" required>
+                        <input type="text" class="form-control" id="FirstName" name="FirstName" value="@ViewBag.User?.FirstName ?? string.Empty" required>
                     </div>
                     <div class="mb-3">
                         <label for="LastName" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="LastName" name="LastName" value="@ViewBag.User.LastName" required>
+                        <input type="text" class="form-control" id="LastName" name="LastName" value="@ViewBag.User?.LastName ?? string.Empty" required>
                     </div>
                     <div class="mb-3">
                         <label for="Email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="Email" name="Email" value="@ViewBag.User.Email" required>
+                        <input type="email" class="form-control" id="Email" name="Email" value="@ViewBag.User?.Email ?? string.Empty" required>
                     </div>
                     <div class="mb-3">
                         <label for="ProfilePicture" class="form-label">Profile Picture</label>
@@ -34,4 +37,44 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $('#editProfileForm').on('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("EditProfile", "User")',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    var banner = $('#notificationBanner');
+                    if (response.success) {
+                        banner.removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                        setTimeout(function () {
+                            $('#editProfileModal').modal('hide');
+                            setTimeout(function () {
+                                location.reload();
+                            }, 500); // Delay to ensure modal is fully hidden before reload
+                        }, 4000);
+                    } else {
+                        banner.removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                    }
+                },
+                error: function () {
+                    var banner = $('#notificationBanner');
+                    banner.removeClass('alert-success').addClass('alert-danger').text('An error occurred while updating the profile.').show();
+                }
+            });
+        });
+
+        $('#editProfileModal').on('hidden.bs.modal', function () {
+            $('#notificationBanner').hide();
+        });
+    });
+</script>
+
 

@@ -64,9 +64,8 @@
                                     </button>
                                 </li>
                             }
-                            @await Html.PartialAsync("_EditProfile")
+                            @await Html.PartialAsync("~/Views/Dashboard/_EditProfile.cshtml")
                         }
-
                         else
                         {
                             <li class="nav-item">
@@ -93,6 +92,40 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        $(document).ready(function () {
+            $('#editProfileForm').on('submit', function (e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EditProfile", "User")',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#editProfileModal .modal-body').prepend('<div class="alert alert-success" role="alert">' + response.message + '</div>');
+                            setTimeout(function () {
+                                $('#editProfileModal').modal('hide');
+                            }, 4000);
+                        } else {
+                            $('#editProfileModal .modal-body').prepend('<div class="alert alert-danger" role="alert">' + response.message + '</div>');
+                        }
+                    },
+                    error: function () {
+                        $('#editProfileModal .modal-body').prepend('<div class="alert alert-danger" role="alert">An error occurred while updating the profile.</div>');
+                    }
+                });
+            });
+
+            $('#editProfileModal').on('hidden.bs.modal', function () {
+                $('.alert').remove();
+            });
+        });
+    </script>
 </body>
 </html>
 
