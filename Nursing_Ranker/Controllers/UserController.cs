@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Nursing_Ranker.Data;
 using Nursing_Ranker.Models;
 using Nursing_Ranker.Models.ClassModels;
@@ -18,6 +19,17 @@ namespace Nursing_Ranker.Controllers
         {
             _context = context;
             _logger = logger;
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId.HasValue)
+            {
+                var user = _context.Users.Find(userId.Value);
+                ViewBag.User = user;
+            }
+            base.OnActionExecuting(context);
         }
 
         public IActionResult Index()
@@ -175,6 +187,7 @@ namespace Nursing_Ranker.Controllers
             // Pass user data to the view
             var model = new EditProfileViewModel
             {
+                UserId = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,

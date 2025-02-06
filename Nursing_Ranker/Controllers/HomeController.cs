@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Nursing_Ranker.Data;
 using Nursing_Ranker.Models;
 using System.Diagnostics;
@@ -14,6 +15,17 @@ namespace Nursing_Ranker.Controllers
         {
             _logger = logger;
             _context = context;
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId.HasValue)
+            {
+                var user = _context.Users.Find(userId.Value);
+                ViewBag.User = user;
+            }
+            base.OnActionExecuting(context);
         }
 
         public IActionResult Index()

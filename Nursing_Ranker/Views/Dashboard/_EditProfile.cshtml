@@ -14,15 +14,15 @@
                 <form id="editProfileForm" method="post" enctype="multipart/form-data" asp-controller="User" asp-action="EditProfile">
                     <div class="mb-3">
                         <label for="FirstName" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="FirstName" name="FirstName" value="@ViewBag.User?.FirstName ?? string.Empty" required>
+                        <input type="text" class="form-control" id="FirstName" name="FirstName" value="@ViewBag.User?.FirstName" required>
                     </div>
                     <div class="mb-3">
                         <label for="LastName" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="LastName" name="LastName" value="@ViewBag.User?.LastName ?? string.Empty" required>
+                        <input type="text" class="form-control" id="LastName" name="LastName" value="@ViewBag.User?.LastName" required>
                     </div>
                     <div class="mb-3">
                         <label for="Email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="Email" name="Email" value="@ViewBag.User?.Email ?? string.Empty" required>
+                        <input type="email" class="form-control" id="Email" name="Email" value="@ViewBag.User?.Email" required>
                     </div>
                     <div class="mb-3">
                         <label for="ProfilePicture" class="form-label">Profile Picture</label>

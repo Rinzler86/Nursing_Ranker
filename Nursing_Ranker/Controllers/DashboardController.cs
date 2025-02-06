@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Nursing_Ranker.Data;
 
 [Authorize]
@@ -12,6 +13,17 @@ public class DashboardController : Controller
     {
         _context = context;
         _logger = logger;
+    }
+
+    public override void OnActionExecuting(ActionExecutingContext context)
+    {
+        int? userId = HttpContext.Session.GetInt32("UserId");
+        if (userId.HasValue)
+        {
+            var user = _context.Users.Find(userId.Value);
+            ViewBag.User = user;
+        }
+        base.OnActionExecuting(context);
     }
 
     public IActionResult Index()
