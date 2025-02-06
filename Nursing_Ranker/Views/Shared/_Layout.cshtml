@@ -111,9 +111,6 @@
                         } else {
                             $('#editProfileModal .modal-body').prepend('<div class="alert alert-danger" role="alert">' + response.message + '</div>');
                         }
-                        setTimeout(function () {
-                            location.reload();
-                        }, 1500); // Delay to ensure modal is fully hidden
                     },
                     error: function () {
                         $('#editProfileModal .modal-body').prepend('<div class="alert alert-danger" role="alert">An error occurred while updating the profile.</div>');
@@ -123,6 +120,7 @@
 
             $('#editProfileModal').on('hidden.bs.modal', function () {
                 $('.alert').remove();
+                location.reload();
             });
         });
     </script>
