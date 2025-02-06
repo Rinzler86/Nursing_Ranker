@@ -111,6 +111,7 @@
                         } else {
                             $('#editProfileModal .modal-body').prepend('<div class="alert alert-danger" role="alert">' + response.message + '</div>');
                         }
+                        location.reload();
                     },
                     error: function () {
                         $('#editProfileModal .modal-body').prepend('<div class="alert alert-danger" role="alert">An error occurred while updating the profile.</div>');
