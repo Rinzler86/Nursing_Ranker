@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using Nursing_Ranker.Data;
 using Nursing_Ranker.Models;
 using Nursing_Ranker.Models.ClassModels;
@@ -38,7 +40,7 @@ namespace Nursing_Ranker.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
             _logger.LogInformation("Login GET action called. ReturnUrl: {ReturnUrl}", returnUrl);
             ViewData["ReturnUrl"] = returnUrl;
@@ -46,7 +48,7 @@ namespace Nursing_Ranker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             _logger.LogInformation("Login POST action called. ReturnUrl: {ReturnUrl}", returnUrl);
 
@@ -71,10 +73,10 @@ namespace Nursing_Ranker.Controllers
 
                     // Set up authentication claims
                     var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Email)
-            };
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.Name, user.Email)
+                    };
 
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
@@ -128,10 +130,10 @@ namespace Nursing_Ranker.Controllers
                 }
 
                 // Save the profile picture
-                string uniqueFileName = null;
+                string? uniqueFileName = null;
                 if (model.ProfilePicture != null)
                 {
-                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\profile_images");
+                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/profile_images");
                     uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ProfilePicture.FileName;
                     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
@@ -147,7 +149,9 @@ namespace Nursing_Ranker.Controllers
                     LastName = model.LastName,
                     Email = model.Email,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password), // Hash the password
-                    ProfilePicturePath = uniqueFileName
+                    ProfilePicturePath = uniqueFileName,
+                    // Hash the color. This will be used to reset the password.
+                    FavColor = BCrypt.Net.BCrypt.HashPassword(model.FavColor) 
                 };
 
                 // Save the user to the database
@@ -225,7 +229,7 @@ namespace Nursing_Ranker.Controllers
                 // Handle new profile picture upload if they did not have one
                 if (model.ProfilePicture != null)
                 {
-                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\profile_images");
+                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/profile_images");
                     string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ProfilePicture.FileName;
                     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -257,6 +261,66 @@ namespace Nursing_Ranker.Controllers
             return Json(new { success = false, message = "Validation failed." });
         }
 
+        [HttpGet]
+        public IActionResult UpdatePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult VerifyUser(UpdatePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("UpdatePassword", model);
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("Email", "Email not found.");
+                return View("UpdatePassword", model);
+            }
+
+            bool isColorMatch = BCrypt.Net.BCrypt.Verify(model.FavColor, user.FavColor);
+            if (!isColorMatch)
+            {
+                ModelState.AddModelError("FavColor", "The favorite color you entered does not match our records.");
+                return View("UpdatePassword", model);
+            }
+
+            model.IsVerified = true;
+            return View("UpdatePassword", model); // Re-render form with new password fields
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdatePassword(UpdatePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("UpdatePassword", model);
+            }
+
+            if (model.NewPassword != model.ConfirmPassword)
+            {
+                ModelState.AddModelError("ConfirmPassword", "Passwords do not match.");
+                return View("UpdatePassword", model);
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Hash and update the password
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Login", "User");
+        }
 
         [HttpPost]
         public async Task<IActionResult> Logout()

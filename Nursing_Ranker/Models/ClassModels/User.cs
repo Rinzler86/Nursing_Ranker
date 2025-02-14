@@ -20,6 +20,10 @@ namespace Nursing_Ranker.Models.ClassModels
         public required string PasswordHash { get; set; }
 
         public string? ProfilePicturePath { get; set; }
+
+        [Required]
+        public required string FavColor { get; set; }
+
     }
 }
 
