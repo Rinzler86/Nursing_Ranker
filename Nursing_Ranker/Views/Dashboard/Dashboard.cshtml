@@ -1,4 +1,6 @@
-﻿@{
+﻿@model Nursing_Ranker.Models.ViewModels.DashboardViewModel
+
+@{
     ViewData["Title"] = "Dashboard";
     var firstName = ViewBag.User?.FirstName;
     var capitalizedFirstName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(firstName?.ToLower() ?? string.Empty);
@@ -10,6 +12,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -31,17 +34,14 @@
                 <button class="nav-link" id="pills-tab4-tab" data-bs-toggle="pill" data-bs-target="#pills-tab4" type="button" role="tab">Alerts</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-tab5-tab" data-bs-toggle="pill" data-bs-target="#pills-tab5" type="button" role="tab">Criteria</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-tab5-tab" data-bs-toggle="pill" data-bs-target="#pills-tab6" type="button" role="tab">Ranking</button>
+                <button class="nav-link" id="pills-tab6-tab" data-bs-toggle="pill" data-bs-target="#pills-tab6" type="button" role="tab">Ranking</button>
             </li>
         </ul>
 
-        <!-- Partial views are edited in their respective files for each tab -->
+        <!-- Partial views -->
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel">
-                @await Html.PartialAsync("_Applicants")
+                @await Html.PartialAsync("_Applicants", Model.Applicants)
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel">
                 @await Html.PartialAsync("_Stats")
@@ -52,9 +52,6 @@
             <div class="tab-pane fade" id="pills-tab4" role="tabpanel">
                 @await Html.PartialAsync("_Alerts")
             </div>
-            <div class="tab-pane fade" id="pills-tab5" role="tabpanel">
-                @await Html.PartialAsync("_Criteria")
-            </div>
             <div class="tab-pane fade" id="pills-tab6" role="tabpanel">
                 @await Html.PartialAsync("_Ranking")
             </div>
@@ -64,6 +61,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
 
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nursing_Ranker.Data;
 
@@ -11,9 +12,11 @@ using Nursing_Ranker.Data;
 namespace Nursing_Ranker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250215204013_AddExtraClassesPointsToApplicantCourse")]
+    partial class AddExtraClassesPointsToApplicantCourse
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,6 +46,9 @@ namespace Nursing_Ranker.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ExtraClassesPoints")
+                        .HasColumnType("int");
+
                     b.Property<string>("Grade")
                         .HasColumnType("nvarchar(max)");
 
@@ -67,11 +73,6 @@ namespace Nursing_Ranker.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ApplicantId"));
 
-                    b.Property<int>("ExtraCredits")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -90,7 +91,7 @@ namespace Nursing_Ranker.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal?>("NursingGPA")
+                    b.Property<decimal>("NursingGPA")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Status")

@@ -1,38 +1,225 @@
-﻿@{
-    var placeholderApplicants = new List<dynamic>
+﻿@model IEnumerable<Nursing_Ranker.Models.ClassModels.Applicant>
+
+@functions {
+    // Function to capitalize the first letter of a string
+    public string Capitalize(string input)
     {
-        new { Name = "John Doe", Email = "john.doe@example.com", ApplicationDate = DateTime.Now },
-        new { Name = "Jane Smith", Email = "jane.smith@example.com", ApplicationDate = DateTime.Now.AddDays(-1) },
-        new { Name = "Alice Johnson", Email = "alice.johnson@example.com", ApplicationDate = DateTime.Now.AddDays(-2) }
-    };
+        if (string.IsNullOrEmpty(input))
+            return input;
+        return char.ToUpper(input[0]) + input.Substring(1).ToLower();
+    }
+
+    // Function to format GPA to one decimal place
+    public string FormatGPA(decimal? gpa)
+    {
+        return gpa.HasValue ? gpa.Value.ToString("F1") : "0.0";
+    }
 }
 
-<div>
+<div style="margin-bottom: 40px;">
     <h3>Applicants</h3>
-    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addApplicantModal">Add Applicant</button>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addApplicantModal">
+        Add Applicant
+    </button>
+
+    <div class="d-flex justify-content-end">
+        <input type="text" id="csvFileName" placeholder="Enter file name" class="form-control mb-3 me-2" style="width: auto;">
+        <button type="button" class="btn btn-secondary mb-3" id="exportCsvBtn">
+            Export to CSV
+        </button>
+    </div>
     <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Application Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var applicant in placeholderApplicants)
+    <thead>
+        <tr>
+            <th><a href="#" class="sort" data-sort="name">Name</a></th>
+            <th><a href="#" class="sort" data-sort="wnumber">W Number</a></th>
+            <th><a href="#" class="sort" data-sort="wsccgpa">WSCC GPA</a></th>
+            <th><a href="#" class="sort" data-sort="nursinggpa">Nursing GPA</a></th>
+            <th><a href="#" class="sort" data-sort="status">Status</a></th>
+            <th><a href="#" class="sort" data-sort="totalpoints">Total Points</a></th>
+            <th><a href="#" class="sort" data-sort="score">Score</a></th>
+            <th>Course Status</th>
+            <th>Test Status</th>
+            <th>Test Scores</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="applicantTableBody">
+            @foreach (var applicant in Model)
             {
-                <tr>
-                    <td>@applicant.Name</td>
-                    <td>@applicant.Email</td>
-                    <td>@applicant.ApplicationDate.ToString("MM/dd/yyyy")</td>
-                    <td>
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editApplicantModal">Edit</button>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            <!-- Display applicant's full name with capitalized first letters -->
+                            @Capitalize(applicant.FirstName) @Capitalize(applicant.MiddleName) @Capitalize(applicant.LastName)
+                        </td>
+                        <td>
+                            <!-- Display applicant's W Number -->
+                            @applicant.WNumber
+                        </td>
+                        <!-- Display formatted WSCC GPA -->
+                        <td>@FormatGPA(applicant.WSCCGPA)</td>
+                        <!-- Display formatted Nursing GPA -->
+                        <td>@FormatGPA(applicant.NursingGPA)</td>
+                        <!-- Display applicant's status -->
+                        <td>@applicant.Status</td>
+                        <!-- Display total points -->
+                        <td>@applicant.TotalPoints</td>
+                        <!-- Display normalized score -->
+                        <td>@applicant.NormalizedScore</td>
+                        <td>
+                        <!-- Display course completion status -->
+                        @if (applicant.AllCoursesCompleted)
+                        {
+                                        <span style="margin-bottom: 10px;" class="badge bg-success">Completed</span>
+                        }
+                        else
+                        {
+                                        <span style="margin-bottom: 10px;" class="badge bg-warning">Incomplete</span>
+                        }
+                            <br />
+                            <!-- Button to edit courses -->
+                            <button type="button"
+                                    class="btn btn-warning btn-sm editCoursesBtn"
+                                    style="margin-left: 5px;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editCoursesModal"
+                                    data-id="@applicant.ApplicantId">
+                                Courses
+                            </button>
+                        </td>
+                        <td>
+                        <!-- Display test completion status -->
+                        @if (applicant.ApplicantRequirements.All(r => r.PointsAwarded > 0 && r.TestDate.HasValue && r.TestDate.Value.AddYears(5) >= DateTime.Now))
+                        {
+                            <span style="margin-bottom: 10px;" class="badge bg-success">Completed</span>
+                        }
+                        else
+                        {
+                            <span style="margin-bottom: 10px;" class="badge bg-warning">Incomplete</span>
+                        }
+
+                            <br />
+                            <!-- Button to edit tests -->
+                            <button type="button"
+                                    class="btn btn-warning btn-sm editTestsBtn"
+                                    style="margin-left: 15px;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editTestsModal"
+                                    data-id="@applicant.ApplicantId">
+                                Tests
+                            </button>
+                        </td>
+                        <td>
+                            <!-- Display list of test scores -->
+                            <ul>
+                            @foreach (var test in applicant.ApplicantRequirements)
+                            {
+                                            <li>@test.TestName: @test.Score (@test.PointsAwarded pts)</li>
+                            }
+                            </ul>
+                        </td>
+                        <td>
+                            <!-- Button to edit applicant details -->
+                            <button type="button"
+                                    class="btn btn-secondary editApplicantBtn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editApplicantModal"
+                                    data-id="@applicant.ApplicantId">
+                                Edit
+                            </button>
+                        </td>
+                    </tr>
             }
-        </tbody>
-    </table>
+    </tbody>
+</table>
+</div>
+
+<!-- Combined Edit Tests Modal -->
+<div class="modal fade" id="editTestsModal" tabindex="-1" aria-labelledby="editTestsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editTestsModalLabel">Edit Applicant Tests</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table" id="editTestsTable">
+          <thead>
+            <tr>
+              <th>Test Name</th>
+              <th>Score</th>
+              <th>Points Awarded</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows will be populated via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="saveTestsBtn" type="button" class="btn btn-primary">Save All Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Combined Edit Courses Modal -->
+<div class="modal fade" id="editCoursesModal" tabindex="-1" aria-labelledby="editCoursesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCoursesModalLabel">Edit Applicant Courses</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Courses Table -->
+        <table class="table" id="editCoursesTable">
+          <thead>
+            <tr>
+              <th>Course Name</th>
+              <th>Grade</th>
+              <th>Completion Date</th>
+              <th>Points Awarded</th>
+              <th>Valid</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Course rows will be populated via JavaScript -->
+          </tbody>
+        </table>
+
+        <hr />
+
+        <!-- Extra Credits Section -->
+        <div id="extraCreditsSection">
+            <h5>Extra Credits (Beyond Required Courses)</h5>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="extraCreditsInput" class="form-label">Number of Extra Credits</label>
+                    <input type="number" class="form-control" id="extraCreditsInput" name="extraCredits" value="0" min="0">
+                </div>
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <label for="extraCreditsPointsDisplay" class="form-label me-2">Extra Credits Points:</label>
+                <p id="extraCreditsPointsDisplay" name="extraCreditsPoints" class="mb-0">0</p>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div id="coursesSummary" class="mt-3">
+          <p>Total Course Points: <span id="totalCoursePoints">0</span></p>
+          <p>All Courses Complete Bonus: <span id="coursesBonus">0</span></p>
+          <p class="d-none">Extra Credit Points: <span id="extraCreditPoints">0</span></p>
+          <p><strong>Combined Total Points: <span id="combinedTotalPoints">0</span></strong></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveCoursesBtn" type="button" class="btn btn-primary">Save All Changes</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Add Applicant Modal -->
@@ -44,25 +231,37 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Add Applicant Form -->
-                <form>
+                <form id="addApplicantForm">
                     <div class="mb-3">
-                        <label for="applicantName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="applicantName">
+                        <label for="First_Name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="First_Name" name="First_Name" required />
                     </div>
                     <div class="mb-3">
-                        <label for="applicantEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="applicantEmail">
+                        <label for="MiddleName" class="form-label">Middle Name</label>
+                        <input type="text" class="form-control" id="MiddleName" name="MiddleName" />
                     </div>
                     <div class="mb-3">
-                        <label for="applicationDate" class="form-label">Application Date</label>
-                        <input type="date" class="form-control" id="applicationDate">
+                        <label for="Last_Name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="Last_Name" name="Last_Name" required />
                     </div>
+                    <div class="mb-3">
+                        <label for="WNumber" class="form-label">W Number</label>
+                        <input type="text" class="form-control" id="WNumber" name="WNumber" onfocus="prependW(this)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="WSCCGPA" class="form-label">WSCC GPA</label>
+                        <input type="number" step="0.01" class="form-control" id="WSCCGPA" name="WSCCGPA" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Status" class="form-label">Status</label>
+                        <select class="form-control" id="Status" name="Status">
+                            <option value="Pre-Applicant">Pre-Applicant</option>
+                            <option value="Eligible">Eligible</option>
+                            <option value="Not Eligible">Not Eligible</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Applicant</button>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
@@ -77,30 +276,689 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Edit Applicant Form -->
-                <form>
+                <form id="editApplicantForm">
+                    <!-- Hidden field for ApplicantId -->
+                    <input type="hidden" id="editApplicantId" name="ApplicantId">
                     <div class="mb-3">
-                        <label for="editApplicantName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="editApplicantName">
+                        <label for="editFirstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="editFirstName" name="FirstName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editApplicantEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="editApplicantEmail">
+                        <label for="editMiddleName" class="form-label">Middle Name</label>
+                        <input type="text" class="form-control" id="editMiddleName" name="MiddleName">
                     </div>
                     <div class="mb-3">
-                        <label for="editApplicationDate" class="form-label">Application Date</label>
-                        <input type="date" class="form-control" id="editApplicationDate">
+                        <label for="editLastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="editLastName" name="LastName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editWNumber" class="form-label">W Number</label>
+                        <input type="text" class="form-control" id="editWNumber" name="WNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editWSCCGPA" class="form-label">WSCC GPA</label>
+                        <input type="number" step="0.01" class="form-control" id="editWSCCGPA" name="WSCCGPA" required>
+                    </div>
+                    <!-- NursingGPA is intentionally omitted from editing -->
+                    <div class="mb-3">
+                        <label for="editStatus" class="form-label">Status</label>
+                        <select class="form-control" id="editStatus" name="Status">
+                            <option value="Pre-Applicant">Pre-Applicant</option>
+                            <option value="Eligible">Eligible</option>
+                            <option value="Not Eligible">Not Eligible</option>
+                        </select>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <!-- Delete Button -->
+                <button id="deleteApplicantBtn" type="button" class="btn btn-danger">Delete Applicant</button>
+                <!-- Save Changes Button – ensure it’s not disabled -->
+                <button id="saveApplicantBtn" type="button" class="btn btn-primary">Save Changes</button>
             </div>
         </div>
     </div>
 </div>
 
 
+<!--JAVASCRIPT -- PLEASE DO NOT EDIT ANYTHING IN THIS SECTION, DONT CHANGE ANY ID'S OR CLASS NAMES ABOVE-->
+
+<!--Javascript for Courses Modal-->
+<script>
+    function calculatePoints(courseName, grade, completionDate, allCoursesCompleted) {
+        const fiveYearsAgo = new Date();
+        fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+
+        if (courseName === "BIOL 2010" || courseName === "BIOL 2020") {
+            if (grade === "A") return 500;
+            if (grade === "B") return 250;
+            return 0;
+        }
+
+        if (allCoursesCompleted && completionDate && new Date(completionDate) >= fiveYearsAgo) {
+            return 500;
+        }
+
+        return 0;
+    }
+
+    // Update the extra credits points display.
+    function updateExtraCreditsPoints() {
+        let credits = parseInt(document.getElementById("extraCreditsInput").value) || 0;
+        let points = 0;
+        if (credits >= 27) {
+            points = 1000;
+        } else if (credits >= 12) {
+            points = 500;
+        }
+        document.getElementById("extraCreditsPointsDisplay").textContent = points;
+        return points;
+    }
 
 
+    // Update the summary section.
+    function updateSummary() {
+        let totalCoursePoints = 0;
+        let allSatisfied = true;
+        // Loop through each course row (exclude rows that might be added for aggregate, if any)
+        document.querySelectorAll("#editCoursesTable tbody tr").forEach(row => {
+            // Assuming every row here is a course row.
+            let cellValue = row.querySelector(".pointsCell").textContent;
+            let pts = parseInt(cellValue) || 0;
+            totalCoursePoints += pts;
+
+            let validText = row.querySelector(".validCell").textContent.trim();
+            if (validText !== "Valid") {
+                allSatisfied = false;
+            }
+        });
+
+        // Courses bonus: 500 points if all courses are valid.
+        let coursesBonus = allSatisfied ? 500 : 0;
+        document.getElementById("totalCoursePoints").textContent = totalCoursePoints;
+        document.getElementById("coursesBonus").textContent = coursesBonus;
+
+        let extraPoints = updateExtraCreditsPoints();
+        document.getElementById("extraCreditPoints").textContent = extraPoints;
+
+        // Combined total
+        document.getElementById("combinedTotalPoints").textContent = totalCoursePoints + coursesBonus + extraPoints;
+    }
+
+    // Update a single course row.
+    function updatePoints(row) {
+        let courseName = row.querySelector("td:first-child").textContent;
+        let grade = row.querySelector(".gradeSelect").value;
+        let completionDateStr = row.querySelector(".completionDateInput").value;
+        const fiveYearsAgo = new Date();
+        fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+
+        let points = calculatePoints(courseName, grade, completionDateStr, false);
+        row.querySelector(".pointsCell").textContent = points;
+
+        let validText = "";
+        if (!completionDateStr) {
+            validText = "No Date";
+        } else if (!grade) {
+            validText = "Incomplete";
+        } else if (grade === "D" || grade === "F") {
+            validText = "Invalid";
+        } else {
+            let compDate = new Date(completionDateStr);
+            validText = compDate >= fiveYearsAgo ? "Valid" : "Expired";
+        }
+        row.querySelector(".validCell").textContent = validText;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // When an Edit Courses button is clicked…
+        document.querySelectorAll(".editCoursesBtn").forEach(button => {
+            button.addEventListener("click", function () {
+                let applicantId = this.getAttribute("data-id");
+                let modal = document.getElementById("editCoursesModal");
+                modal.setAttribute("data-applicant-id", applicantId);
+
+                // Fetch courses for the applicant.
+                fetch('@Url.Action("GetApplicantCourses", "Dashboard")' + '?id=' + applicantId)
+                    .then(response => response.json())
+                    .then(data => {
+                        let tbody = document.querySelector("#editCoursesTable tbody");
+                        tbody.innerHTML = "";
+                        data.forEach(course => {
+                            let formattedDate = course.completionDate 
+                                ? new Date(course.completionDate).toISOString().split('T')[0]
+                                : '';
+                            const fiveYearsAgo = new Date();
+                            fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+
+                            let points = calculatePoints(course.courseName, course.grade, formattedDate, false);
+                            let validText = "";
+                            if (!formattedDate) {
+                                validText = "No Date";
+                            } else if (!course.grade) {
+                                validText = "Incomplete";
+                            } else if (course.grade === "D" || course.grade === "F") {
+                                validText = "Invalid";
+                            } else {
+                                let compDate = new Date(formattedDate);
+                                validText = compDate >= fiveYearsAgo ? "Valid" : "Expired";
+                            }
+
+                            let row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${course.courseName}</td>
+                                <td>
+                                    <select class="form-select gradeSelect">
+                                        <option value="">Select Grade</option>
+                                        <option value="F" ${course.grade === 'F' ? "selected" : ""}>Not Taken</option>
+                                        <option value="A" ${course.grade === 'A' ? "selected" : ""}>A</option>
+                                        <option value="B" ${course.grade === 'B' ? "selected" : ""}>B</option>
+                                        <option value="C" ${course.grade === 'C' ? "selected" : ""}>C</option>
+                                        <option value="D" ${course.grade === 'D' ? "selected" : ""}>D</option>
+                                        <option value="F" ${course.grade === 'F' ? "selected" : ""}>F</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control completionDateInput" value="${formattedDate}">
+                                </td>
+                                <td class="pointsCell">${points}</td>
+                                <td class="validCell">${validText}</td>
+                                <input type="hidden" class="applicantCourseId" value="${course.courseId}">
+                            `;
+                            tbody.appendChild(row);
+
+                            let gradeSelect = row.querySelector(".gradeSelect");
+                            gradeSelect.addEventListener("change", function () {
+                                updatePoints(row);
+                                updateSummary();
+                            });
+                            let completionDateInput = row.querySelector(".completionDateInput");
+                            completionDateInput.addEventListener("change", function () {
+                                updatePoints(row);
+                                updateSummary();
+                            });
+                            completionDateInput.addEventListener("input", function () {
+                                updatePoints(row);
+                                updateSummary();
+                            });
+                            completionDateInput.addEventListener("blur", function () {
+                                updatePoints(row);
+                                updateSummary();
+                            });
+                        });
+                        // After building all rows, update the summary.
+                        updateSummary();
+
+                        // Also fetch the applicant data to set extra credits.
+                        fetch('@Url.Action("GetApplicant", "Dashboard")' + '?id=' + applicantId)
+                          .then(response => response.json())
+                          .then(appData => {
+                              document.getElementById("extraCreditsInput").value = appData.extraCredits || 0;
+                              updateExtraCreditsPoints();
+                              updateSummary();
+                          })
+                          .catch(error => console.error('Error fetching applicant data:', error));
+                    })
+                    .catch(error => console.error('Error fetching courses:', error));
+            });
+        });
+
+        //arguments for the save button
+        document.getElementById("saveCoursesBtn").addEventListener("click", function () {
+            let modal = document.getElementById("editCoursesModal");
+            let applicantId = modal.getAttribute("data-applicant-id");
+            let rows = document.querySelectorAll("#editCoursesTable tbody tr:not(#aggregateRow)");
+            let coursesData = [];
+
+            rows.forEach(row => {
+                // We assume every row here is a course row.
+                let courseId = row.querySelector(".applicantCourseId").value;
+                let grade = row.querySelector(".gradeSelect").value;
+                let completionDate = row.querySelector(".completionDateInput").value;
+                coursesData.push({
+                    ApplicantId: applicantId,
+                    ApplicantCourseId: courseId,
+                    Grade: grade,
+                    CompletionDate: completionDate
+                });
+            });
+
+            // First, save the courses.
+            fetch('@Url.Action("UpdateApplicantCourses", "Dashboard")', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(coursesData)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Then update the extra credits.
+                    let extraCredits = parseInt(document.getElementById("extraCreditsInput").value) || 0;
+                    fetch('@Url.Action("UpdateApplicantExtraCredits", "Dashboard")', {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ ApplicantId: applicantId, ExtraCredits: extraCredits })
+                    })
+                    .then(resp => resp.json())
+                    .then(extraResult => {
+                        if (extraResult.success) {
+                            // Then update the NursingGPA based on courses.
+                            fetch('@Url.Action("UpdateApplicantGPA", "Dashboard")', {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(parseInt(applicantId))
+                            })
+                            .then(resp => resp.json())
+                            .then(gpaResult => {
+                                if (gpaResult.success) {
+                                    location.reload();
+                                } else {
+                                    alert("Failed to update GPA: " + gpaResult.message);
+                                }
+                            })
+                            .catch(error => console.error("Error updating GPA:", error));
+                        } else {
+                            alert("Failed to update extra credits: " + extraResult.message);
+                        }
+                    })
+                    .catch(error => console.error("Error updating extra credits:", error));
+                } else {
+                    alert("Failed to update courses: " + result.message);
+                }
+            })
+            .catch(error => console.error("Error updating courses:", error));
+        });
+
+    });
+</script>
+
+<!-- JavaScript for Adding Applicants -->
+<script>
+    function calculateTestPoints(testName, score, testDate) {
+        const fiveYearsAgo = new Date();
+        fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+    
+        // If a test date is provided and it is older than 5 years, return 0.
+        if (testDate && new Date(testDate) < fiveYearsAgo) {
+            return 0;
+        }
+    
+        let points = 0;
+        if (testName === "ACT") {
+            if (score >= 26) {
+                points = 500;
+            } else if (score >= 19) {
+                points = 250;
+            }
+        } else if (testName === "HESI") {
+            if (score >= 80) {
+                points = 500;
+            }
+        }
+        return points;
+    }
+
+    document.getElementById("addApplicantForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+    
+        // Retrieve the anti-forgery token
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    
+        let formData = {
+            FirstName: document.getElementById("First_Name").value,
+            MiddleName: document.getElementById("MiddleName").value,
+            LastName: document.getElementById("Last_Name").value,
+            WNumber: document.getElementById("WNumber").value,
+            WSCCGPA: document.getElementById("WSCCGPA").value,
+            Status: document.getElementById("Status").value
+        };
+        console.log("Form Data:", formData);
+
+        fetch('@Url.Action("AddApplicant", "Dashboard")', {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "RequestVerificationToken": token // Pass the token in the header
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            // If your action returns a redirect, you might need to handle non-JSON responses.
+            // Consider returning JSON from your action for AJAX calls.
+            return response.json();
+        })
+        .then(result => {
+            if (result.success) {
+                location.reload();
+            } else {
+                alert("Failed to add applicant: " + result.message);
+            }
+        })
+        .catch(error => console.error("Error adding applicant:", error));
+    });
+</script>
+
+<!-- JavaScript for Editing Applicants -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // When an Edit button is clicked (should have class "editApplicantBtn")
+        document.querySelectorAll(".editApplicantBtn").forEach(function (button) {
+            button.addEventListener("click", function () {
+                // Get the applicant ID from the data attribute
+                let applicantId = this.getAttribute("data-id");
+                // Set the applicant ID in the modal's hidden field
+                document.getElementById("editApplicantId").value = applicantId;
+
+                // Fetch the applicant data
+                fetch('@Url.Action("GetApplicant", "Dashboard")' + '?id=' + applicantId)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Fetched applicant data:", data);
+                        document.getElementById("editFirstName").value = data.firstName;
+                        document.getElementById("editMiddleName").value = data.middleName || "";
+                        document.getElementById("editLastName").value = data.lastName;
+                        document.getElementById("editWNumber").value = data.wNumber;
+                        document.getElementById("editWSCCGPA").value = data.wsccGpa;
+                        // Do not update NursingGPA since it's not editable.
+                        document.getElementById("editStatus").value = data.status;
+                    })
+                    .catch(error => console.error("Error fetching applicant data:", error));
+            });
+        });
+
+        // Save Changes button handler
+        document.getElementById("saveApplicantBtn").addEventListener("click", function () {
+            let applicant = {
+                ApplicantId: document.getElementById("editApplicantId").value,
+                FirstName: document.getElementById("editFirstName").value,
+                MiddleName: document.getElementById("editMiddleName").value,
+                LastName: document.getElementById("editLastName").value,
+                WNumber: document.getElementById("editWNumber").value,
+                WSCCGPA: document.getElementById("editWSCCGPA").value,
+                Status: document.getElementById("editStatus").value
+            };
+            fetch('@Url.Action("EditApplicant", "Dashboard")', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify(applicant)
+            })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert("Failed to update applicant: " + result.message);
+                    }
+                })
+                .catch(error => console.error("Error updating applicant:", error));
+        });
+
+
+        // Delete Applicant button handler
+        document.getElementById("deleteApplicantBtn").addEventListener("click", function () {
+            if (confirm("Are you sure you want to delete this applicant? This action cannot be undone.")) {
+                let applicantId = document.getElementById("editApplicantId").value;
+                fetch('@Url.Action("DeleteApplicant", "Dashboard")' + '?id=' + applicantId, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            location.reload();
+                        } else {
+                            alert("Failed to delete applicant: " + result.message);
+                        }
+                    })
+                    .catch(error => console.error("Error deleting applicant:", error));
+            }
+        });
+    });
+</script>
+
+<!-- Initialize Bootstrap tooltips for all elements with the data-bs-toggle="tooltip" attribute -->
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+</script>
+
+
+<!--Javascript for Courses Modal-->
+<script>
+// This script handles the functionality for editing courses in the modal.
+// It includes functions to calculate points for courses, update the extra credits points display,
+// update the summary section, and update individual course rows.
+// It also includes event listeners for when the Edit Courses button is click
+
+    
+    // This function calculates the points awarded for a test based on the test name, score, and test date.
+    // If the test date is older than 5 years, it returns 0 points.
+    // For the ACT test, it awards 500 points for scores 26 and above, and 250 points for scores 19 and above.
+    // For the HESI test, it awards 500 points for scores 80 and above.
+    function calculateTestPoints(testName, score, testDate) {
+        const fiveYearsAgo = new Date();
+        fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+
+        // If a test date is provided and it is older than 5 years, return 0.
+        if (testDate && new Date(testDate) < fiveYearsAgo) {
+            return 0;
+        }
+
+        let points = 0;
+        if (testName === "ACT") {
+            if (score >= 26) {
+                points = 500;
+            } else if (score >= 19) {
+                points = 250;
+            }
+        } else if (testName === "HESI") {
+            if (score >= 80) {
+                points = 500;
+            }
+        }
+        return points;
+    }
+
+    // applicantId is set in the modal's data attribute when the Edit Tests button is clicked.
+    document.addEventListener("DOMContentLoaded", function () {
+        // When the Edit Tests button is clicked…
+        document.querySelectorAll(".editTestsBtn").forEach(button => {
+            button.addEventListener("click", function () {
+                let applicantId = this.getAttribute("data-id");
+                let modal = document.getElementById("editTestsModal");
+                modal.setAttribute("data-applicant-id", applicantId);
+                fetch('@Url.Action("GetApplicantRequirements", "Dashboard")' + '?id=' + applicantId)
+                    .then(response => response.json())
+                    .then(data => {
+                        let tbody = document.querySelector("#editTestsTable tbody");
+                        tbody.innerHTML = "";
+                    
+                        // If no test records exist, seed default rows for ACT and HESI.
+                        if (data.length === 0) {
+                            console.log("No test records found, seeding defaults.");
+                            data = [
+                                { requirementId: 0, testName: "ACT", score: "", testDate: "", pointsAwarded: 0 },
+                                { requirementId: 0, testName: "HESI", score: "", testDate: "", pointsAwarded: 0 }
+                            ];
+                        }
+                    
+                        data.forEach(test => {
+                            let formattedDate = test.testDate ? test.testDate : "";
+                            let scoreVal = parseFloat(test.score) || 0;
+                            let points = calculateTestPoints(test.testName, scoreVal, formattedDate);
+                            let statusText = points > 0 ? "Completed" : "Incomplete";
+
+                            let row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${test.testName}</td>
+                                <td>
+                                    <input type="number" step="0.01" class="form-control scoreInput" value="${test.score || ''}">
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control testDateInput" value="${formattedDate}">
+                                </td>
+                                <td class="pointsCell">${points}</td>
+                                <td class="statusCell">${statusText}</td>
+                                <input type="hidden" class="requirementId" value="${test.requirementId}">
+                            `;
+                            tbody.appendChild(row);
+
+                            // Add event listeners to update the row when inputs change.
+                            function updateTestRow() {
+                                let testName = row.querySelector("td:first-child").textContent;
+                                let scoreVal = parseFloat(row.querySelector(".scoreInput").value) || 0;
+                                let testDateVal = row.querySelector(".testDateInput").value;
+                                let newPoints = calculateTestPoints(testName, scoreVal, testDateVal);
+                                let newStatusText = (scoreVal && testDateVal) ? "Completed" : "Incomplete";
+
+                                row.querySelector(".pointsCell").textContent = newPoints;
+                                row.querySelector(".statusCell").textContent = newPoints > 0 ? "Completed" : "Incomplete";
+                            }
+                        
+                            let scoreInput = row.querySelector(".scoreInput");
+                            let dateInput = row.querySelector(".testDateInput");
+                            scoreInput.addEventListener("change", updateTestRow);
+                            scoreInput.addEventListener("input", updateTestRow);
+                            scoreInput.addEventListener("blur", updateTestRow);
+                            dateInput.addEventListener("change", updateTestRow);
+                            dateInput.addEventListener("input", updateTestRow);
+                            dateInput.addEventListener("blur", updateTestRow);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching tests:', error));
+            });
+        });
+    
+        // Save Tests button event listener.
+        document.getElementById("saveTestsBtn").addEventListener("click", function () {
+            let modal = document.getElementById("editTestsModal");
+            let applicantId = modal.getAttribute("data-applicant-id");
+            let rows = document.querySelectorAll("#editTestsTable tbody tr");
+            let testsData = [];
+            let isValid = true;
+            let errorMessage = "";
+
+            rows.forEach(row => {
+                // Ensure that the row represents a test record.
+                let reqElem = row.querySelector(".requirementId");
+                if (!reqElem) return;
+        
+                let requirementId = reqElem.value;
+                let testName = row.querySelector("td:first-child").textContent.trim();
+                let scoreInputValue = row.querySelector(".scoreInput").value;
+                let scoreVal = parseFloat(scoreInputValue);
+                let testDate = row.querySelector(".testDateInput").value; // may be empty
+
+                // Client-side validation for ACT and HESI scores.
+                if (testName === "ACT") {
+                    if (isNaN(scoreVal) || scoreVal < 0 || scoreVal > 36) {
+                        isValid = false;
+                        errorMessage = "ACT score must be between 0 and 36.";
+                    }
+                } else if (testName === "HESI") {
+                    if (isNaN(scoreVal) || scoreVal < 0 || scoreVal > 100) {
+                        isValid = false;
+                        errorMessage = "HESI score must be between 0 and 100.";
+                    }
+                }
+        
+                testsData.push({
+                    ApplicantId: applicantId,
+                    RequirementId: requirementId,
+                    TestName: testName,
+                    Score: scoreInputValue, // send as string or number as you prefer
+                    TestDate: testDate
+                });
+            });
+
+            // Alert the user if validation fails.
+            if (!isValid) {
+                alert(errorMessage);
+                return; // Stop if validation fails.
+            }
+
+            // Log the testsData to see what is being sent.
+            console.log("Saving tests data:", testsData);
+            fetch('@Url.Action("UpdateApplicantRequirements", "Dashboard")', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(testsData)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    console.log("Tests saved successfully.");
+                    location.reload();
+                } else {
+                    alert("Failed to update tests: " + result.message);
+                }
+            })
+            .catch(error => console.error("Error updating tests:", error));
+        });
+
+    });
+</script>
+
+<!--Javascript for prepending the W number field with a "W"-->
+<script>
+    function prependW(input) {
+        if (!input.value.startsWith('W')) {
+            input.value = 'W';
+        }
+        // Set cursor position to after the "W"
+        input.setSelectionRange(1, 1);
+    }
+</script>
+
+<!-- JavaScript for sorting table columns -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+        const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+            v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+        )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+        document.querySelectorAll('th a.sort').forEach(th => th.addEventListener('click', function () {
+            const table = th.closest('table');
+            Array.from(table.querySelectorAll('tbody > tr'))
+                .sort(comparer(Array.from(th.parentNode.parentNode.children).indexOf(th.parentNode), this.asc = !this.asc))
+                .forEach(tr => table.querySelector('tbody').appendChild(tr));
+        }));
+    });
+</script>
+
+<!--Export to CSV File-->
+<script>
+    document.getElementById("exportCsvBtn").addEventListener("click", function () {
+        let fileName = document.getElementById("csvFileName").value || "applicants";
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Name, W Number, WSCC GPA, Nursing GPA, Status, Total Points, Score\n"; // Adjusted headers with spaces
+
+        document.querySelectorAll("#applicantTableBody tr").forEach(row => {
+            let name = row.querySelector("td:nth-child(1)").textContent.trim();
+            let wNumber = row.querySelector("td:nth-child(2)").textContent.trim();
+            let wsccGpa = row.querySelector("td:nth-child(3)").textContent.trim();
+            let nursingGpa = row.querySelector("td:nth-child(4)").textContent.trim();
+            let status = row.querySelector("td:nth-child(5)").textContent.trim();
+            let totalPoints = row.querySelector("td:nth-child(6)").textContent.trim();
+            let score = row.querySelector("td:nth-child(7)").textContent.trim();
+
+            // Add extra spaces between columns
+            csvContent += `${name}, ${wNumber}, ${wsccGpa}, ${nursingGpa}, ${status}, ${totalPoints}, ${score}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", fileName + ".csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+</script>
