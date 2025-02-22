@@ -42,10 +42,8 @@ namespace Nursing_Ranker.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        public IActionResult Login()
         {
-            _logger.LogInformation("Login GET action called. ReturnUrl: {ReturnUrl}", returnUrl);
-            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
@@ -266,13 +264,14 @@ namespace Nursing_Ranker.Controllers
         [HttpGet]
         public IActionResult UpdatePassword()
         {
-            return View();
+            var model = new UpdatePasswordViewModel();
+            return View(model);
         }
 
         [HttpPost]
         public IActionResult VerifyUser(UpdatePasswordViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 return View("UpdatePassword", model);
             }
@@ -300,7 +299,7 @@ namespace Nursing_Ranker.Controllers
         public async Task<IActionResult> UpdatePassword(UpdatePasswordViewModel model)
         {
             bool loggedin = false;
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 return View("UpdatePassword", model);
             }
@@ -341,7 +340,10 @@ namespace Nursing_Ranker.Controllers
 
             if (!loggedin)
             {
-                return RedirectToAction("Login", "User");
+                // Clear the session data
+                HttpContext.Session.Clear();
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return View("Login", "User");
             }
             else
             {
