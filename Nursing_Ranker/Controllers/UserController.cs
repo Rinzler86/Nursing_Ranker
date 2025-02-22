@@ -271,7 +271,7 @@ namespace Nursing_Ranker.Controllers
         [HttpPost]
         public IActionResult VerifyUser(UpdatePasswordViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View("UpdatePassword", model);
             }
@@ -299,7 +299,7 @@ namespace Nursing_Ranker.Controllers
         public async Task<IActionResult> UpdatePassword(UpdatePasswordViewModel model)
         {
             bool loggedin = false;
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View("UpdatePassword", model);
             }
@@ -343,7 +343,7 @@ namespace Nursing_Ranker.Controllers
                 // Clear the session data
                 HttpContext.Session.Clear();
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                return View("Login", "User");
+                return RedirectToAction("Login", "User");
             }
             else
             {
