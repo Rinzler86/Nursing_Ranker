@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Nursing_Ranker.Data;
 using Nursing_Ranker.Models;
 using Nursing_Ranker.Models.ClassModels;
+using System.Diagnostics.Eventing.Reader;
 using System.Security.Claims;
 
 
@@ -38,7 +42,7 @@ namespace Nursing_Ranker.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
             _logger.LogInformation("Login GET action called. ReturnUrl: {ReturnUrl}", returnUrl);
             ViewData["ReturnUrl"] = returnUrl;
@@ -46,7 +50,7 @@ namespace Nursing_Ranker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             _logger.LogInformation("Login POST action called. ReturnUrl: {ReturnUrl}", returnUrl);
 
@@ -71,10 +75,10 @@ namespace Nursing_Ranker.Controllers
 
                     // Set up authentication claims
                     var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Email)
-            };
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.Name, user.Email)
+                    };
 
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
@@ -128,10 +132,10 @@ namespace Nursing_Ranker.Controllers
                 }
 
                 // Save the profile picture
-                string uniqueFileName = null;
+                string? uniqueFileName = null;
                 if (model.ProfilePicture != null)
                 {
-                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\profile_images");
+                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/profile_images");
                     uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ProfilePicture.FileName;
                     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
@@ -147,7 +151,9 @@ namespace Nursing_Ranker.Controllers
                     LastName = model.LastName,
                     Email = model.Email,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password), // Hash the password
-                    ProfilePicturePath = uniqueFileName
+                    ProfilePicturePath = uniqueFileName,
+                    // Hash the color. This will be used to reset the password.
+                    FavColor = BCrypt.Net.BCrypt.HashPassword(model.FavColor) 
                 };
 
                 // Save the user to the database
@@ -225,7 +231,7 @@ namespace Nursing_Ranker.Controllers
                 // Handle new profile picture upload if they did not have one
                 if (model.ProfilePicture != null)
                 {
-                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\profile_images");
+                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/profile_images");
                     string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ProfilePicture.FileName;
                     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -255,6 +261,116 @@ namespace Nursing_Ranker.Controllers
             }
 
             return Json(new { success = false, message = "Validation failed." });
+        }
+
+        [HttpGet]
+        public IActionResult UpdatePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult VerifyUser(UpdatePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("UpdatePassword", model);
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("Email", "Email not found.");
+                return View("UpdatePassword", model);
+            }
+
+            bool isColorMatch = BCrypt.Net.BCrypt.Verify(model.FavColor, user.FavColor);
+            if (!isColorMatch)
+            {
+                ModelState.AddModelError("FavColor", "The favorite color you entered does not match our records.");
+                return View("UpdatePassword", model);
+            }
+
+            model.IsVerified = true;
+            return View("UpdatePassword", model); // Re-render form with new password fields
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdatePassword(UpdatePasswordViewModel model)
+        {
+            bool loggedin = false;
+            if (!ModelState.IsValid)
+            {
+                return View("UpdatePassword", model);
+            }
+
+            if (model.NewPassword != model.ConfirmPassword)
+            {
+                ModelState.AddModelError("ConfirmPassword", "Passwords do not match.");
+                return View("UpdatePassword", model);
+            }
+
+            // Attempt to retrieve the user by email (for password reset)
+            var user = !string.IsNullOrEmpty(model.Email)
+                ? _context.Users.FirstOrDefault(u => u.Email == model.Email)
+                : null;
+
+            // If no email is provided, attempt to retrieve the logged-in user
+            if (user == null && this.User.Identity.IsAuthenticated)
+            {
+                var userIdClaim = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (int.TryParse(userIdClaim, out int userId))
+                {
+                    user = _context.Users.FirstOrDefault(u => u.Id == userId);
+                    loggedin = true;
+                }
+            }
+
+            // If user is still null, return an error
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Hash and update the password
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+
+            if (!loggedin)
+            {
+                return RedirectToAction("Login", "User");
+            }
+            else
+            {
+                return Json(new { success = true, message = "Password updated! You may now close with the close button." });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult VerifyCurrentPassword(ChangePasswordViewModel model)
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "User is not logged in." });
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            // Check if current password is correct
+            if (!BCrypt.Net.BCrypt.Verify(model.CurrentPassword, user.PasswordHash))
+            {
+                return Json(new { success = false, message = "Current password is incorrect." });
+            }
+
+            return Json(new { success = true, message = "Password verified! You may now set a new password." });
         }
 
 

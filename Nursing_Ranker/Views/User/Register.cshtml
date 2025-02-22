@@ -30,6 +30,11 @@
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                         <div class="form-group mb-3">
+                            <label for="favColor">Favorite Color</label>
+                            <input type="text" class="form-control" id="favColor" name="FavColor" required>
+                            <span asp-validation-for="FavColor" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
                             <label for="profilePicture">Profile Picture</label>
                             <input type="file" class="form-control" id="profilePicture" name="ProfilePicture" accept="image/*">
                         </div>
