@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Nursing_Ranker.Data;
 using Nursing_Ranker.Models;
 using Nursing_Ranker.Models.ClassModels;
+using System.Diagnostics.Eventing.Reader;
 using System.Security.Claims;
 
 
@@ -297,6 +299,7 @@ namespace Nursing_Ranker.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdatePassword(UpdatePasswordViewModel model)
         {
+            bool loggedin = false;
             if (!ModelState.IsValid)
             {
                 return View("UpdatePassword", model);
@@ -308,7 +311,23 @@ namespace Nursing_Ranker.Controllers
                 return View("UpdatePassword", model);
             }
 
-            var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
+            // Attempt to retrieve the user by email (for password reset)
+            var user = !string.IsNullOrEmpty(model.Email)
+                ? _context.Users.FirstOrDefault(u => u.Email == model.Email)
+                : null;
+
+            // If no email is provided, attempt to retrieve the logged-in user
+            if (user == null && this.User.Identity.IsAuthenticated)
+            {
+                var userIdClaim = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (int.TryParse(userIdClaim, out int userId))
+                {
+                    user = _context.Users.FirstOrDefault(u => u.Id == userId);
+                    loggedin = true;
+                }
+            }
+
+            // If user is still null, return an error
             if (user == null)
             {
                 return NotFound();
@@ -319,8 +338,41 @@ namespace Nursing_Ranker.Controllers
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Login", "User");
+
+            if (!loggedin)
+            {
+                return RedirectToAction("Login", "User");
+            }
+            else
+            {
+                return Json(new { success = true, message = "Password updated! You may now close with the close button." });
+            }
         }
+
+        [HttpPost]
+        public IActionResult VerifyCurrentPassword(ChangePasswordViewModel model)
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "User is not logged in." });
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            // Check if current password is correct
+            if (!BCrypt.Net.BCrypt.Verify(model.CurrentPassword, user.PasswordHash))
+            {
+                return Json(new { success = false, message = "Current password is incorrect." });
+            }
+
+            return Json(new { success = true, message = "Password verified! You may now set a new password." });
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Logout()
