@@ -42,10 +42,8 @@ namespace Nursing_Ranker.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        public IActionResult Login()
         {
-            _logger.LogInformation("Login GET action called. ReturnUrl: {ReturnUrl}", returnUrl);
-            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
@@ -266,7 +264,8 @@ namespace Nursing_Ranker.Controllers
         [HttpGet]
         public IActionResult UpdatePassword()
         {
-            return View();
+            var model = new UpdatePasswordViewModel();
+            return View(model);
         }
 
         [HttpPost]
@@ -341,6 +340,9 @@ namespace Nursing_Ranker.Controllers
 
             if (!loggedin)
             {
+                // Clear the session data
+                HttpContext.Session.Clear();
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return RedirectToAction("Login", "User");
             }
             else
