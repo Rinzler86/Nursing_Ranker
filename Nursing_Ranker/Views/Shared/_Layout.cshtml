@@ -11,7 +11,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <img src="~/images/site_images/walters_state_logo.png" alt="Nursing Ranker Logo" style="height: 40px;" />
@@ -113,6 +113,72 @@
             $('#editProfileModal').on('hidden.bs.modal', function () {
                 $('.alert').remove();
                 location.reload();
+            });
+            console.log("Document is ready");
+
+            // Ensure event is bound properly
+            $(document).on('click', '#changePasswordBtn', function () {
+                console.log("Change Password button clicked");
+
+                $('#profileFields').hide(); // Hide profile fields
+                $('#editProfileForm').hide(); // Hide profile form
+                $('#verifyPasswordForm').show(); // Show verification form
+                $('#changePasswordBtn').hide(); // Hide the Change Password button
+                $('#saveChangesBtn').hide(); // Hide the Save Changes button
+
+            });
+
+            // Step 2: Handle password verification
+            $('#verifyPasswordForm').on('submit', function (e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                console.log("Submitting verification form");
+
+                $.post('@Url.Action("VerifyCurrentPassword", "User")', formData, function (response) {
+                    var banner = $('#notificationBanner');
+
+                    if (response.success) {
+                        banner.removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+
+                        // Show the password change form and hide the verification form
+                        $('#verifyPasswordForm').hide();
+                        $('#updatePasswordForm').show();
+                    } else {
+                        banner.removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                    }
+                }).fail(function () {
+                    $('#notificationBanner').removeClass('alert-success').addClass('alert-danger').text('Verification failed. Please try again.').show();
+                });
+            });
+
+            // Step 3: Handle password update
+            $('#updatePasswordForm').on('submit', function (e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                console.log("Submitting password update form");
+
+                $.post('@Url.Action("UpdatePassword", "User")', formData, function (response) {
+                    var banner = $('#notificationBanner');
+
+                    if (response.success) {
+                        banner.removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                    } else {
+                        banner.removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                    }
+                }).fail(function () {
+                    $('#notificationBanner').removeClass('alert-success').addClass('alert-danger').text('Error updating password.').show();
+                });
+            });
+
+            // Reset modal when closed
+            $('#editProfileModal').on('hidden.bs.modal', function () {
+                console.log("Modal closed, resetting fields");
+                $('#profileFields').show();
+                $('#editProfileForm').show();
+                $('#verifyPasswordForm').hide();
+                $('#updatePasswordForm').hide();
+                $('#changePasswordBtn').show();
+                $('#notificationBanner').hide();
             });
         });
     </script>

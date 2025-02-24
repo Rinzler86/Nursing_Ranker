@@ -51,9 +51,19 @@ button.accept-policy {
 }
 
 .footer {
+<<<<<<< HEAD
     position: absolute;
     bottom: 0;
     width: 100%;
     white-space: nowrap;
     line-height: 60px;
+=======
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+  padding-top: 30px;
+>>>>>>> f1cd715974ab9f316cb0313d31700ab1e8327c43
 }
+
