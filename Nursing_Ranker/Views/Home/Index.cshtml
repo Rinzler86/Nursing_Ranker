@@ -1,30 +1,33 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
-}
+}<head>
+    <title>Nursing Ranker</title>
+    <style>
+      h1{
+          font-family: "Times New Roman", Times, serif;
+          
+                    
+      }
+      .lead{
+            font-family: "Times New Roman", Times, serif;
+      }
+      body{
+            background-image: url('@Url.Content("~/images/site_images/fontchange (10).png")');
+            background-size: cover; /* Ensures it covers the entire page */
+            background-repeat: no-repeat; /* Prevents tiling */
+            background-attachment: fixed; /* Keeps background fixed when scrolling */
+            background-position: center center;
+      }
 
-<div class="text-center">
-    <h1 class="display-4">Nursing Ranker</h1>
-    <p class="lead">Welcome to Nursing Ranker, your go-to source for ranking nursing programs.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <button class="btn btn-primary mt-3" id="animatedButton">Get Started</button>
-</div>
+/* just adding some small touches to the css of the login page */
+    </style>
+</head>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const button = document.getElementById('animatedButton');
-            let gradientPosition = 0;
 
-            function animateGradient() {
-                gradientPosition += 1;
-                button.style.background = `linear-gradient(${gradientPosition}deg, #258cfb, #f06595)`;
-                requestAnimationFrame(animateGradient);
-            }
 
-            animateGradient();
-        });
-    </script>
-}
+  
+
+
 
 
 

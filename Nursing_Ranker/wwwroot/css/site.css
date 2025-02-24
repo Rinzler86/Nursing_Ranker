@@ -7,8 +7,12 @@ html {
         font-size: 16px;
     }
 }
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+navbar-nav {
+    
+    background-color: #1D2951;
+    text-decoration-color: white;
+}
+    .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
@@ -24,10 +28,13 @@ body {
 .text-center {
     margin-top: 50px;
 }
+class-photo {
+    border: 5px solid #710C04;
+}
 
 .display-4 {
     font-weight: bold;
-    color: #258cfb;
+    color: #1D2951;
 }
 
 .lead {
@@ -36,15 +43,17 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #ff6b6b, #f06595);
+    background: linear-gradient(45deg, #576dea, #D6103A); /* #2F437ABlue to Red */
     border: none;
     color: white;
     transition: background 0.5s;
 }
 
     .btn-primary:hover {
-        background: linear-gradient(45deg, #f06595, #ff6b6b);
+        background: linear-gradient(45deg, #D6103A, #576dea); /* #710C04 Red to Blue on Hover */
     }
+    
+
 
 .footer {
     text-align: center;
