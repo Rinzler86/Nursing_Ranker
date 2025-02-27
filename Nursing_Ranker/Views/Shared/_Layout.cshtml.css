@@ -19,8 +19,8 @@ a {
 
 .btn-primary {
     color: white;
-    background-color: #710C04;
-    border-color: #a280ec; 
+    background-color: #710C04 !important;
+    border-color: #a280ec!important; 
 }/*button colors*/
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
