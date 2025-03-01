@@ -551,6 +551,24 @@ namespace Nursing_Ranker.Controllers
             return Json(new { success = true, nursingGPA = avgGPA });
         }
 
+        // displays a web page with just the students information that we could maybe print later
+        public IActionResult StudentDetails(int id)
+        {
+            var student = _context.Applicants
+                .Include(a => a.ApplicantCourses)
+                .Include(a => a.ApplicantRequirements)
+                .FirstOrDefault(a => a.ApplicantId == id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            return View(student);
+        }// end method
+
+
+
         [AllowAnonymous]
         public IActionResult ModalAndTabReference()
         {
