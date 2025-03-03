@@ -1,0 +1,136 @@
+﻿@model Nursing_Ranker.Models.ClassModels.Applicant
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@functions {
+    // Function to capitalize the first letter of a string
+    public string Capitalize(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+        return char.ToUpper(input[0]) + input.Substring(1).ToLower();
+    }
+}
+
+
+<h2 class="text-center">Student Information</h2>
+<table class="table table-bordered table-striped mt-2">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>W Number</th>
+            <th>WSCC GPA</th>
+            <th>Nursing GPA</th>
+            <th>Total Points</th>
+            <th>Extra Credits</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Capitalize(Model.FirstName) @Capitalize(Model.MiddleName) @Capitalize(Model.LastName)</td>
+            <td>@Model.WNumber</td>
+            <td>@Model.WSCCGPA</td>
+            <td>@Model.NursingGPA</td>
+            <td>@Model.TotalPoints</td>
+            <td>@Model.ExtraCredits</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 class="text-center">Student Courses</h2>
+<table class="table table-bordered table-striped mt-2">
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Course Grade</th>
+            <th>Completion Date</th>
+            <th>Points Awarded</th>
+            <th>Within 5 years</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ApplicantCourse course in Model.ApplicantCourses)
+        {
+            <tr>
+                <td>@course.CourseName</td>
+                <td>@course.Grade</td>
+                <td>@course.CompletionDate</td>
+                <td>@course.PointsAwarded</td>
+                <td>
+                    @(course.RequiresRetake ? "No" : "Yes")
+                </td>
+            </tr>
+        } @* end foreach *@
+    </tbody>
+</table>
+
+<h2 class="text-center">Student Tests</h2>
+<table class="table table-bordered table-striped mt-2">
+    <thead>
+        <tr>
+            <th>Test Name</th>
+            <th>Test Grade</th>
+            <th>Completion Date</th>
+            <th>Points Awarded</th>
+            <th>Within 5 years</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var test in Model.ApplicantRequirements)
+        {
+            <tr>
+                <td>@test.TestName</td>
+                <td>@test.Score</td>
+                <td>@test.TestDate</td>
+                <td>@test.PointsAwarded</td>
+                <td>
+                    @if (test.TestDate != null)
+                    {
+                        @(test.TestDate.Value.AddYears(5) < DateTime.Now ? "No" : "Yes")
+                    }
+                </td>
+            </tr>
+        } @* end foreach *@
+    </tbody>
+</table>
+
+<h2 class="text-center">Scoring Explanation</h2>
+<p>
+    The maximum amount of points a student can have is 3500.
+    This is calculated based on a number of things. 
+
+    The first 1000 can come from Biol 2010 and Biol 2020 with an A giving
+    500 each or a b giving 250 each. C and below does not give
+    and points.
+
+    The next 500 points can come from whether or not ALL required
+    courses have been complete. If you are missing a single one
+    you do not get any extra points in that category.
+
+    The next 1000 points can come from how many extra credits you have
+    taken outside of the required courses. If you have 0-11 you will
+    recieve 0 points, 12-26 gives 500 points, and 27 or more reward
+    1000 points.
+
+    The last 1000 come from tests that may or may not have been taken.
+
+    The first test is the ACT. A score of 18 and below gives 0 points,
+    19-25 gives 250 points, 26+ gives you 500.
+
+    The HESI gives you 500 points if you scored 80+ and 0 if you got a 
+    79 or below. Class and test scores older than 5 years of age are also
+    not counted for this score.
+</p>
+
+<h2 class="text-center">General Requirements</h2>
+<p class ="text-center">
+    <ul>
+		<li>All class and test grades must be less than 5 years of age.</li>
+        <li>Overall GPA must be above a 2.0.</li>
+        <li>Gen Ed GPA must be above a 2.5.</li>
+    </ul>
+</p>
+
+<a asp-action="Index" style="display: block; text-align: center;">Back to List</a>

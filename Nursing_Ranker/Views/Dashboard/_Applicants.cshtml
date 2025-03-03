@@ -50,7 +50,10 @@
                     <tr>
                         <td>
                             <!-- Display applicant's full name with capitalized first letters -->
-                            @Capitalize(applicant.FirstName) @Capitalize(applicant.MiddleName) @Capitalize(applicant.LastName)
+                            <!-- Also link their name to show a new web page with their information-->
+                        <a asp-controller="Dashboard" asp-action="StudentDetails" asp-route-id="@applicant.ApplicantId">
+                                @Capitalize(applicant.FirstName) @Capitalize(applicant.MiddleName) @Capitalize(applicant.LastName)
+                            </a>
                         </td>
                         <td>
                             <!-- Display applicant's W Number -->
