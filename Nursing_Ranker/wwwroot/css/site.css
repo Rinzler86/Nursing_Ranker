@@ -1,5 +1,8 @@
+/* Global Font & Base Setup */
 html {
     font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,26 +11,44 @@ html {
     }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+/* Flex Layout for Sticky Footer */
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* Removed margin-bottom: 60px; since sticky footer will be handled with flex */
+}
+
+/* Main content (assumed to be in a container or main element) should grow */
+main {
+    flex: 1;
+}
+
+/* Navbar Styles */
+.navbar-nav {
+    background-color: #1D2951;
+    text-decoration-color: white;
+}
+
+/* Optional: Additional utility for elements like submit buttons */
+.submit-button {
+    margin-top: 15px;
+}
+
+/* Focus state styles for interactive elements */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-    position: relative;
-    min-height: 100%;
-}
-
-body {
-    margin-bottom: 60px;
-}
-
-.text-center {
-    margin-top: 50px;
-}
-
+/* Typography */
 .display-4 {
     font-weight: bold;
-    color: #258cfb;
+    color: #1D2951;
 }
 
 .lead {
@@ -35,25 +56,42 @@ body {
     font-weight: 300;
 }
 
+/* Button Primary Styles */
 .btn-primary {
-    background: linear-gradient(45deg, #ff6b6b, #f06595);
+    background: linear-gradient(45deg, #576dea, #D6103A); /* Blue to Red */
     border: none;
     color: white;
     transition: background 0.5s;
 }
 
     .btn-primary:hover {
-        background: linear-gradient(45deg, #f06595, #ff6b6b);
+        background: linear-gradient(45deg, #D6103A, #576dea); /* Red to Blue on Hover */
     }
 
+/* Sticky Footer */
 .footer {
     text-align: center;
+    padding: 10px;
+    width: 100%;
+    margin-top: auto; /* Pushes footer to bottom when content is short */
+    background-color: #1D2951; /* Optional for contrast */
+    color: white;
 }
 
-/*This is for the profile picture in the navbar*/
+/* Profile Picture in Navbar */
 .profile-picture {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
+}
+
+/* Optional: Class for images or elements that need a styled border */
+.class-photo {
+    border: 5px solid #710C04;
+}
+
+/* Utility Class */
+.text-center {
+    margin-top: 50px;
 }

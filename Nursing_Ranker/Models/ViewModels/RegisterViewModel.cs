@@ -14,6 +14,9 @@ namespace Nursing_Ranker.Models
         [EmailAddress]
         public required string Email { get; set; }
 
+        [Required]
+        public required string FavColor { get; set; }
+
         [DataType(DataType.Upload)]
         public IFormFile? ProfilePicture { get; set; }
 
