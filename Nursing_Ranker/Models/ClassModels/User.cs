@@ -19,6 +19,9 @@ namespace Nursing_Ranker.Models.ClassModels
         [Required]
         public required string PasswordHash { get; set; }
 
+        [Required]
+        public required string FavColor { get; set; } = "white";
+
         public string? ProfilePicturePath { get; set; }
     }
 }

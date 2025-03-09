@@ -147,7 +147,8 @@ namespace Nursing_Ranker.Controllers
                     LastName = model.LastName,
                     Email = model.Email,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password), // Hash the password
-                    ProfilePicturePath = uniqueFileName
+                    ProfilePicturePath = uniqueFileName,
+                    FavColor = "white"
                 };
 
                 // Save the user to the database

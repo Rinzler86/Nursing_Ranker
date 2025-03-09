@@ -27,6 +27,13 @@ namespace Nursing_Ranker.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
+            // Set default value for FavColor
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(e => e.FavColor)
+                    .HasDefaultValue("white");
+            });
+
             // Ensure precision where needed
             modelBuilder.Entity<ApplicantRequirement>()
                 .Property(ar => ar.Score)
