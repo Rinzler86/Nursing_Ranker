@@ -1,8 +1,10 @@
 /* Global Font & Base Setup */
+/* Global Font & Base Setup */
 html {
     font-size: 14px;
     position: relative;
     min-height: 100%;
+    font-family: 'Ubuntu', sans-serif; /* Set Ubuntu as the default font */
 }
 
 @media (min-width: 768px) {
@@ -11,13 +13,16 @@ html {
     }
 }
 
-/* Flex Layout for Sticky Footer */
 body {
     margin: 0;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    /* Removed margin-bottom: 60px; since sticky footer will be handled with flex */
+    font-family: 'Ubuntu', sans-serif; /* Ensure body also uses Ubuntu */
+}
+
+h1, h2, h3, td, footer, li {
+    font-family: 'Times New Roman', Times, serif; /* Example override for headings */
 }
 
 /* Main content (assumed to be in a container or main element) should grow */
@@ -93,5 +98,13 @@ main {
 
 /* Utility Class */
 .text-center {
-    margin-top: 50px;
+    margin-top: 10px;
+}
+
+.navbar-toggler {
+    border-color: white; /* Optional: Makes the border of the button white */
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='white' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }

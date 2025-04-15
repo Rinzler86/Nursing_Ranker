@@ -6,43 +6,147 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Nursing Ranker</title>
+    <title>WSCC Nursing Faculty Portal</title>
     <style>
-        h1 {
-            font-family: "Times New Roman", Times, serif;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
         }
 
-        .lead {
-            font-family: "Times New Roman", Times, serif;
+        .hero {
+            background: url('@Url.Content("~/images/site_images/smoky-mountains-7772596_1920.jpg")') no-repeat center center/cover;
+            height: 400px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+            .hero h1 {
+                background-color: rgba(0, 0, 0, 0.6);
+                color: #fff;
+                padding: 20px;
+                font-size: 2.8em;
+            }
 
         main {
-            flex: 1;
+            padding: 20px;
         }
 
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            background-image: url('@Url.Content("~/images/site_images/fontchange (10).png")');
-            background-size: cover; /* Ensures it covers the entire page */
-            background-repeat: no-repeat; /* Prevents tiling */
-            background-attachment: fixed; /* Keeps background fixed when scrolling */
-            background-position: center center;
+        section {
+            margin-bottom: 40px;
         }
 
-        footer {
-            text-align: center;
-            padding: 10px;
-            width: 100px;
-            position: relative;
-            bottom: 0;
+        h2 {
+            color: #00457c;
         }
-        /* just adding some small touches to the css of the login page */
+
+        .introduction p {
+            font-size: 1.1em;
+        }
+
+        .program-highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+            .program-highlights article {
+                border: 1px solid #ccc;
+                padding: 15px;
+                background-color: #f9f9f9;
+                border-left: 5px solid #00457c;
+            }
+
+            .program-highlights img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+                margin-bottom: 10px;
+            }
+
+        .application-process {
+            background: #f1f1f1;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+            .application-process ul {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            .application-process a {
+                display: inline-block;
+                background: #00457c;
+                color: #fff;
+                padding: 10px 20px;
+                text-decoration: none;
+                margin-top: 10px;
+                border-radius: 4px;
+            }
     </style>
 </head>
+<body>
+    <section class="hero">
+        <h1>WSCC Nursing Admissions Dashboard</h1>
+    </section>
 
+    <main>
+        <section class="introduction">
+            <h2>Faculty Portal Overview</h2>
+            <p>
+                Welcome to the WSCC Nursing Faculty Portal. This internal tool assists faculty in managing prospective student applications, organizing applicant data, and facilitating the admissions ranking process for the Walters State Associate of Applied Science in Nursing program.
+            </p>
+        </section>
+
+        <section class="program-highlights">
+            <article>
+                <img src="@Url.Content("~/images/site_images/chart.png")" alt="Applicant Management">
+                <h3>Applicant Management</h3>
+                <p>
+                    View and manage applicant submissions including GPA, completed prerequisites, transcripts, and more. Filter applicants based on qualification status.
+                </p>
+            </article>
+            <article>
+                <img src="@Url.Content("~/images/site_images/heart.png")" alt="Ranking Criteria">
+                <h3>Ranking Criteria</h3>
+                <p>
+                    Score applicants using predefined metrics such as HESI-A2 results, course completions, and overall GPA. View ranked lists to help determine acceptance eligibility.
+                </p>
+            </article>
+            <article>
+                <img src="@Url.Content("~/images/site_images/nurse.png")" alt="Faculty Tools">
+                <h3>Faculty Tools</h3>
+                <p>
+                    Communicate with other faculty, record evaluation notes, and flag applications for follow-up. Designed to streamline the admissions process and improve collaboration.
+                </p>
+            </article>
+        </section>
+
+        <section class="application-process">
+            <h2>Admissions Deadlines & Criteria</h2>
+            <p>
+                Reference these dates when reviewing applicants:
+                <ul>
+                    <li><strong>Fall Admission:</strong> January 31</li>
+                    <li><strong>Spring Admission:</strong> October 1</li>
+                    <li><strong>Career Mobility (LPN-RN):</strong> January 31</li>
+                </ul>
+                Basic admission requirements include:
+                <ul>
+                    <li>Minimum 2.5 GPA</li>
+                    <li>Completion of BIOL 2010/2011 and ENGL 1010</li>
+                    <li>HESI-A2 test scores</li>
+                </ul>
+            </p>
+            <a href="https://apps.ws.edu/health-ap/" target="_blank">Access Application Portal</a>
+        </section>
+    </main>
+</body>
+</html>
 
 
   
