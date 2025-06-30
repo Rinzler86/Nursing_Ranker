@@ -27,4 +27,8 @@ RUN dotnet publish "./Nursing_Ranker.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Copy the SQLite database file into the container
+COPY Nursing_Ranker/app.db /app/app.db
+
 ENTRYPOINT ["dotnet", "Nursing_Ranker.dll"]
