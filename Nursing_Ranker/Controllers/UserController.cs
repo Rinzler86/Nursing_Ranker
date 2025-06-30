@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Nursing_Ranker.Data;
 using Nursing_Ranker.Models;
-using Nursing_Ranker.Models.ClassModels;
+using Nursing_Ranker.Models.ViewModels;
 using System.Security.Claims;
 
 

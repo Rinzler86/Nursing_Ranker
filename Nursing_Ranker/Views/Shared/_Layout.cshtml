@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using Nursing_Ranker.Models.ViewModels
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -41,7 +42,7 @@
                             </li>
                             @* Display profile picture if available *@
                             var userId = Context.Session.GetInt32("UserId");
-                            var user = userId.HasValue ? ViewBag.User as Nursing_Ranker.Models.ClassModels.User : null;
+                            var user = userId.HasValue ? ViewBag.User as User : null;
                             var profilePicturePath = user?.ProfilePicturePath;
                             if (!string.IsNullOrEmpty(profilePicturePath))
                             {

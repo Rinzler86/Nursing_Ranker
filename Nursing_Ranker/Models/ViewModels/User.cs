@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Nursing_Ranker.Models.ClassModels
+namespace Nursing_Ranker.Models.ViewModels
 {
     public class User
     {

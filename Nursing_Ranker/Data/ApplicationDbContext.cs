@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Nursing_Ranker.Models.ClassModels;
+using Nursing_Ranker.Models.ViewModels;
 
 namespace Nursing_Ranker.Data
 {
