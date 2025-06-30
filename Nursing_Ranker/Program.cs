@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Add session services
-builder.Services.AddSession(options =>
+builder.Services.AddSession(static options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout
     options.Cookie.HttpOnly = true;
@@ -20,14 +20,14 @@ builder.Services.AddDistributedMemoryCache();
 
 // Add authentication services
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+    .AddCookie(static options =>
     {
         options.LoginPath = "/User/Login";
     });
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite("Data Source=app.db"));
 
 var app = builder.Build();
 
@@ -53,7 +53,7 @@ app.UseAuthorization();
 // Use session
 app.UseSession();
 
-app.UseEndpoints(endpoints =>
+app.UseEndpoints(static endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
